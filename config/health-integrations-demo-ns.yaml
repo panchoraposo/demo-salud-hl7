@@ -1,0 +1,18 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"project.openshift.io/v1","kind":"Project","metadata":{"annotations":{"openshift.io/description":"","openshift.io/display-name":"Health Integrations - Demo"},"labels":{"kubernetes.io/metadata.name":"health-integrations-demo","pod-security.kubernetes.io/audit":"restricted","pod-security.kubernetes.io/audit-version":"v1.24","pod-security.kubernetes.io/warn":"restricted","pod-security.kubernetes.io/warn-version":"v1.24"},"name":"health-integrations-demo","resourceVersion":"1926884","uid":"73d1d91d-7d48-4ce7-8732-7cb4fdd0451e"},"spec":{"finalizers":["kubernetes"]}}
+    openshift.io/description: ""
+    openshift.io/display-name: Health Integrations - Demo
+  labels:
+    kubernetes.io/metadata.name: health-integrations-demo
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: v1.24
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: v1.24
+  name: health-integrations-demo
+spec:
+  finalizers:
+  - kubernetes
