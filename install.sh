@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Create project
+oc new-project health-integrations-demo 
 
 # Create secret to s3-to-kafka integration
 oc delete secret env-cfg-demo
