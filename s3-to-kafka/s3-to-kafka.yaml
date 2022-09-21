@@ -6,7 +6,7 @@ spec:
   flows:
     - route:
         from:
-          uri: kamelet:aws-s3-source
+          uri: aws2-s3://salud-hl7-demo
           steps:
             - log:
                 message: ${body}
@@ -19,10 +19,9 @@ spec:
                   user: '{{kafka.cliente.id}}'
                   password: '{{kafka.client.secret}}'
           parameters:
-            accessKey: '{{aws.access.key}}'
-            bucketNameOrArn: '{{aws.bucket.name}}'
-            region: '{{aws.region}}'
-            secretKey: '{{aws.secret.key}}'
+            accessKey: "{{aws.access.key}}"
+            region: "{{aws.region}}"
+            secretKey: "{{aws.secret.key}}"
   traits:
     mount:
       configs:
