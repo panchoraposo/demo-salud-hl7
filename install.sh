@@ -22,9 +22,9 @@ oc delete integration s3-to-kafka
 oc apply -f ./s3-to-kafka/s3-to-kafka.yaml
 
 # Deploy hl7-to-json
-# cd ./hl7-to-json/
-# quarkus build -Dquarkus.kubernetes.deploy=true
-# cd ..
+cd ./hl7-to-json/
+quarkus build -Dquarkus.kubernetes.deploy=true
+cd ..
 
 # Deploy kafka-to-nosql 
 oc delete integration kafka-to-nosql
