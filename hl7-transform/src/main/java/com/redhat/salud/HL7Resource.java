@@ -12,11 +12,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import ca.uhn.hl7v2.DefaultHapiContext;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.HapiContext;
+import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.model.v22.datatype.*;
 import ca.uhn.hl7v2.model.v22.message.ADT_A01;
 import ca.uhn.hl7v2.model.v22.segment.EVN;
 import ca.uhn.hl7v2.model.v22.segment.MSH;
 import ca.uhn.hl7v2.model.v22.segment.PID;
+import ca.uhn.hl7v2.parser.DefaultXMLParser;
+import ca.uhn.hl7v2.parser.Parser;
+import ca.uhn.hl7v2.parser.XMLParser;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
@@ -32,7 +39,7 @@ public class HL7Resource {
     @Inject
     ProducerTemplate producerTemplate;
 
-    @Path("/mllp")
+    @Path("/json")
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +54,7 @@ public class HL7Resource {
         endpoint.assertIsSatisfied(5000L);
         Exchange exchange = endpoint.getExchanges().get(0);
         ADT_A01 result = exchange.getMessage().getBody(ADT_A01.class);
-
+        System.out.println(result);
         return adtToJsonObject(result);
     }
 
@@ -104,11 +111,31 @@ public class HL7Resource {
 
     @Path("/xml")
     @POST
-    @Consumes(MediaType.APPLICATION_XML)
-    @Produces(MediaType.APPLICATION_JSON)
-    public JsonObject hl7Xml(String messageXml) throws Exception {
-        ADT_A01 result = producerTemplate.requestBody("direct:unmarshalXml", messageXml, ADT_A01.class);
-        return adtToJsonObject(result);
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_XML)
+    public String hl7Xml(String message) throws Exception {
+        MockEndpoint endpoint = context.getEndpoint("mock:result", MockEndpoint.class);
+        //endpoint.expectedMessageCount(1);
+
+        producerTemplate.sendBody(
+                "netty:tcp://localhost:{{camel.hl7.test-tcp-port}}?sync=true&encoders=#hl7encoder&decoders=#hl7decoder",
+                messageXml);
+
+        endpoint.assertIsSatisfied(5000L);
+        Exchange exchange = endpoint.getExchanges().get(0);
+        ADT_A01 result = exchange.getMessage().getBody(ADT_A01.class);
+        System.out.println(result);
+
+        HapiContext context = new DefaultHapiContext();
+        Parser parser = context.getPipeParser();
+        String encodedMessage = parser.encode(result);
+
+        // Next, let's use the XML parser to encode as XML
+        parser = context.getXMLParser();
+        encodedMessage = parser.encode(result);
+        
+        return encodedMessage;
+
     }
 
     private JsonObject adtToJsonObject(ADT_A01 result) {
@@ -174,4 +201,10 @@ public class HL7Resource {
 
         return objectBuilder.build();
     }
+
+    public String convertMessage(Message message) throws HL7Exception {
+        XMLParser parser = new DefaultXMLParser();
+        return parser.encode(message);
+    }
+
 }

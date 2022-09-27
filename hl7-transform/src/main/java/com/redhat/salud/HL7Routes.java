@@ -38,5 +38,9 @@ public class HL7Routes extends RouteBuilder {
         from("direct:hl7terserBean")
                 .bean("terserBean");
 
+        from("direct:unmarshalXml")
+                .unmarshal("hl7DataFormat")
+                .marshal("hl7DataFormat");
+
     }
 }
