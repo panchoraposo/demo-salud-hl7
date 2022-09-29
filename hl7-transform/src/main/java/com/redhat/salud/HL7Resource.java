@@ -44,16 +44,8 @@ public class HL7Resource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public JsonObject mllp(String message) throws Exception {
-        MockEndpoint endpoint = context.getEndpoint("mock:result", MockEndpoint.class);
-        //endpoint.expectedMessageCount(1);
-
-        producerTemplate.sendBody(
-                "netty:tcp://localhost:{{camel.hl7.test-tcp-port}}?sync=true&encoders=#hl7encoder&decoders=#hl7decoder",
-                message);
-
-        endpoint.assertIsSatisfied(5000L);
-        Exchange exchange = endpoint.getExchanges().get(0);
-        ADT_A01 result = exchange.getMessage().getBody(ADT_A01.class);
+        ADT_A01 result = getMessage(message);
+        System.out.println(result);
         System.out.println(result);
         return adtToJsonObject(result);
     }
@@ -114,16 +106,7 @@ public class HL7Resource {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_XML)
     public String hl7Xml(String message) throws Exception {
-        MockEndpoint endpoint = context.getEndpoint("mock:result", MockEndpoint.class);
-        //endpoint.expectedMessageCount(1);
-
-        producerTemplate.sendBody(
-                "netty:tcp://localhost:{{camel.hl7.test-tcp-port}}?sync=true&encoders=#hl7encoder&decoders=#hl7decoder",
-                messageXml);
-
-        endpoint.assertIsSatisfied(5000L);
-        Exchange exchange = endpoint.getExchanges().get(0);
-        ADT_A01 result = exchange.getMessage().getBody(ADT_A01.class);
+        ADT_A01 result = getMessage(message);
         System.out.println(result);
 
         HapiContext context = new DefaultHapiContext();
@@ -205,6 +188,21 @@ public class HL7Resource {
     public String convertMessage(Message message) throws HL7Exception {
         XMLParser parser = new DefaultXMLParser();
         return parser.encode(message);
+    }
+
+    public ADT_A01 getMessage(String message) throws InterruptedException {
+        MockEndpoint endpoint = context.getEndpoint("mock:result", MockEndpoint.class);
+        //endpoint.expectedMessageCount(1);
+
+        producerTemplate.sendBody(
+                "netty:tcp://localhost:{{camel.hl7.test-tcp-port}}?sync=true&encoders=#hl7encoder&decoders=#hl7decoder",
+                message);
+
+        endpoint.assertIsSatisfied(5000L);
+        Exchange exchange = endpoint.getExchanges().get(0);
+        ADT_A01 result = exchange.getMessage().getBody(ADT_A01.class);
+
+        return result;
     }
 
 }
